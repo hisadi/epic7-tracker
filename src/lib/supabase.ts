@@ -3,6 +3,8 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL
 const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  db: { schema: 'e7' }
-})
+export const supabase = createClient(
+  supabaseUrl.replace(/\/$/, ''),  // hapus trailing slash kalau ada
+  supabaseAnonKey,
+  { db: { schema: 'e7' } }
+)
