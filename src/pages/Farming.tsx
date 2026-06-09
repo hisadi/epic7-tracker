@@ -1,9 +1,16 @@
-import { HUNTS } from '../data/heroes'
+import { HUNTS, HEROES } from '../data/heroes'
 import { useFarming } from '../hooks/useFarming'
+import { useCatalyst } from '../hooks/useCatalyst'
+import { useRoster } from '../hooks/useRoster'
 import HuntCard from '../components/farming/HuntCard'
+import CatalystTracker from '../components/farming/CatalystTracker'
 
 export default function Farming() {
   const { loading, getTodayLog, toggleDaily, addRun, setTarget, totalRuns } = useFarming()
+  const { roster } = useRoster()
+  const { getTodayTargets, addTarget, toggleCollected, deleteTarget } = useCatalyst()
+
+  const ownedHeroes = HEROES.filter(h => roster.find(r => r.hero_id === h.id && r.owned))
 
   const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
   const doneCount = HUNTS.filter(h => getTodayLog(h.name)?.daily_done).length
@@ -44,6 +51,16 @@ export default function Farming() {
           ))}
         </div>
       )}
+
+      {/* Catalyst Tracker */}
+      <CatalystTracker
+        ownedHeroes={ownedHeroes}
+        todayTargets={getTodayTargets()}
+        loading={false}
+        onAdd={addTarget}
+        onToggle={toggleCollected}
+        onDelete={deleteTarget}
+      />
 
       {/* Summary */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">

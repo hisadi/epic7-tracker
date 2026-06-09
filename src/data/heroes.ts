@@ -1,4 +1,4 @@
-import type { Hero, Hunt } from '../types'
+import type { Hero, Hunt, CatalystType } from '../types'
 
 export const ELEMENT_COLORS: Record<string, string> = {
   fire:  'bg-red-500/20 text-red-400 border-red-500/30',
@@ -171,4 +171,14 @@ export const HEROES: Hero[] = [
   { id: 'doris', name: 'Doris', element: 'light', heroClass: 'soul_weaver', stars: 3, roles: ['healer'] },
   { id: 'mercedes', name: 'Mercedes', element: 'fire', heroClass: 'mage', stars: 4, roles: ['dps'] },
   { id: 'wanda', name: 'Wanda', element: 'dark', heroClass: 'ranger', stars: 3, roles: ['debuffer'] },
+]
+
+export const CATALYSTS: { type: CatalystType; icon: string }[] = [
+  { type: 'Horn of Promise',       icon: '🐴' },
+  { type: 'Moonlight Stone',       icon: '🌙' },
+  { type: 'Ring of Glory',         icon: '💍' },
+  { type: 'Necklace of Intuition', icon: '📿' },
+  { type: 'Blade of Justice',      icon: '⚔️' },
+  { type: 'Mystic Medallion',      icon: '🔰' },
+  { type: 'Charm of Devotion',     icon: '💫' },
 ]

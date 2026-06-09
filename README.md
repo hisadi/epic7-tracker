@@ -17,7 +17,7 @@ Buat project di [supabase.com](https://supabase.com), lalu jalankan SQL ini di *
 
 ```sql
 -- Roster
-create table roster (
+create table e7.roster (
   id         uuid primary key default gen_random_uuid(),
   hero_id    text not null unique,
   owned      boolean default false,
@@ -27,11 +27,11 @@ create table roster (
   notes      text default '',
   created_at timestamptz default now()
 );
-alter table roster enable row level security;
-create policy "Public" on roster for all using (true) with check (true);
+alter table e7.roster enable row level security;
+create policy "Public" on e7.roster for all using (true) with check (true);
 
 -- Teams
-create table teams (
+create table e7.teams (
   id         uuid primary key default gen_random_uuid(),
   name       text not null,
   mode       text default '',
@@ -42,11 +42,11 @@ create table teams (
   notes      text default '',
   created_at timestamptz default now()
 );
-alter table teams enable row level security;
-create policy "Public" on teams for all using (true) with check (true);
+alter table e7.teams enable row level security;
+create policy "Public" on e7.teams for all using (true) with check (true);
 
 -- Farming log
-create table farming_log (
+create table e7.farming_log (
   id          uuid primary key default gen_random_uuid(),
   hunt        text not null,
   date        date not null,
@@ -56,8 +56,21 @@ create table farming_log (
   created_at  timestamptz default now(),
   unique(hunt, date)
 );
-alter table farming_log enable row level security;
-create policy "Public" on farming_log for all using (true) with check (true);
+alter table e7.farming_log enable row level security;
+create policy "Public" on e7.farming_log for all using (true) with check (true);
+
+-- Catalyst targets
+create table e7.catalyst_targets (
+  id            uuid primary key default gen_random_uuid(),
+  hero_id       text not null,
+  catalyst_type text not null,
+  purpose       text default 'Awaken',
+  collected     boolean default false,
+  date          date not null,
+  created_at    timestamptz default now()
+);
+alter table e7.catalyst_targets enable row level security;
+create policy "Public" on e7.catalyst_targets for all using (true) with check (true);
 ```
 
 ### 3. Isi kredensial
@@ -90,3 +103,4 @@ npm run dev
 - **Roster** — track semua hero E7, toggle owned/built, simpan gear set & notes, filter by element/class
 - **Team Builder** — buat & simpan tim untuk berbagai mode (Wyvern, PvP, dll), pilih dari hero yang dimiliki
 - **Farming** — checklist harian per hunt, run counter, target gear, progress bar harian, total runs all-time
+- **Catalyst Tracker** — pilih hero + catalyst + purpose (Awaken/Skill Up) untuk ditargetkan hari ini, centang saat sudah dikumpulkan

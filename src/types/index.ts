@@ -60,3 +60,24 @@ export interface FarmingLog {
   daily_done: boolean
   target_gear: string
 }
+
+export type CatalystType =
+  | 'Horn of Promise'
+  | 'Moonlight Stone'
+  | 'Ring of Glory'
+  | 'Necklace of Intuition'
+  | 'Blade of Justice'
+  | 'Mystic Medallion'
+  | 'Charm of Devotion'
+
+export type CatalystPurpose = 'Awaken' | 'Skill Up'
+
+export interface CatalystTarget {
+  id: string
+  hero_id: string
+  catalyst_type: CatalystType
+  purpose: CatalystPurpose
+  collected: boolean
+  date: string
+  created_at: string
+}
