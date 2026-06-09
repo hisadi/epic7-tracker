@@ -173,12 +173,11 @@ export const HEROES: Hero[] = [
   { id: 'wanda', name: 'Wanda', element: 'dark', heroClass: 'ranger', stars: 3, roles: ['debuffer'] },
 ]
 
-export const CATALYSTS: { type: CatalystType; icon: string }[] = [
-  { type: 'Horn of Promise',       icon: '🐴' },
-  { type: 'Moonlight Stone',       icon: '🌙' },
-  { type: 'Ring of Glory',         icon: '💍' },
-  { type: 'Necklace of Intuition', icon: '📿' },
-  { type: 'Blade of Justice',      icon: '⚔️' },
-  { type: 'Mystic Medallion',      icon: '🔰' },
-  { type: 'Charm of Devotion',     icon: '💫' },
-]
+export const CLASS_CATALYSTS: Record<HeroClass, { name: string; icon: string }> = {
+  warrior:     { name: 'Warrior Catalyst',     icon: '⚔️' },
+  mage:        { name: 'Mage Catalyst',         icon: '🔮' },
+  knight:      { name: 'Knight Catalyst',       icon: '🛡️' },
+  soul_weaver: { name: 'Soul Weaver Catalyst',  icon: '💚' },
+  thief:       { name: 'Thief Catalyst',        icon: '🗡️' },
+  ranger:      { name: 'Ranger Catalyst',       icon: '🏹' },
+}
