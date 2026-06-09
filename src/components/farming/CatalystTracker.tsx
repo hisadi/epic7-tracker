@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { HEROES, CLASS_ICONS, ELEMENT_DOT, CATALYSTS } from '../../data/heroes'
+import { HEROES, CLASS_ICONS, ELEMENT_DOT, CLASS_CATALYSTS } from '../../data/heroes'
 import type { Hero, CatalystTarget, CatalystType, CatalystPurpose } from '../../types'
 
 interface Props {
@@ -13,15 +13,19 @@ interface Props {
 
 export default function CatalystTracker({ ownedHeroes, todayTargets, loading, onAdd, onToggle, onDelete }: Props) {
   const [selectedHero, setSelectedHero] = useState('')
-  const [selectedCatalyst, setSelectedCatalyst] = useState<CatalystType>(CATALYSTS[0].type)
   const [selectedPurpose, setSelectedPurpose] = useState<CatalystPurpose>('Awaken')
 
   const collected = todayTargets.filter(t => t.collected).length
   const total = todayTargets.length
 
+  const selectedHeroData = HEROES.find(h => h.id === selectedHero)
+  const autoCatalyst = selectedHeroData
+    ? CLASS_CATALYSTS[selectedHeroData.heroClass]
+    : null
+
   function handleAdd() {
-    if (!selectedHero) return
-    onAdd(selectedHero, selectedCatalyst, selectedPurpose)
+    if (!selectedHero || !selectedHeroData) return
+    onAdd(selectedHero, selectedHeroData.heroClass as CatalystType, selectedPurpose)
     setSelectedHero('')
   }
 
@@ -29,15 +33,13 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
 
   return (
     <div className="space-y-4">
-      {/* Section Header */}
       <div>
         <h2 className="text-lg font-bold text-white">Catalyst Target</h2>
         <p className="text-zinc-500 text-sm mt-1">
-          Pilih hero + catalyst untuk ditargetkan hari ini
+          Pilih hero — catalyst otomatis sesuai class
         </p>
       </div>
 
-      {/* Progress bar */}
       {total > 0 && (
         <div className="flex items-center gap-3">
           <div className="flex-1 bg-zinc-900 rounded-full h-2 overflow-hidden">
@@ -53,6 +55,7 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
       {/* Add form */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
           {/* Hero select */}
           <div>
             <label className="text-xs text-zinc-500 uppercase tracking-wide">Hero</label>
@@ -68,18 +71,16 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
             </select>
           </div>
 
-          {/* Catalyst type */}
+          {/* Catalyst — otomatis dari class */}
           <div>
             <label className="text-xs text-zinc-500 uppercase tracking-wide">Catalyst</label>
-            <select
-              value={selectedCatalyst}
-              onChange={e => setSelectedCatalyst(e.target.value as CatalystType)}
-              className="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-zinc-600"
-            >
-              {CATALYSTS.map(c => (
-                <option key={c.type} value={c.type}>{c.icon} {c.type}</option>
-              ))}
-            </select>
+            <div className="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm min-h-[42px] flex items-center">
+              {autoCatalyst ? (
+                <span className="text-white">{autoCatalyst.icon} {autoCatalyst.name}</span>
+              ) : (
+                <span className="text-zinc-600">Pilih hero dulu</span>
+              )}
+            </div>
           </div>
 
           {/* Purpose */}
@@ -116,15 +117,14 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
         </div>
       ) : todayTargets.length === 0 ? (
         <div className="text-center py-12 text-zinc-600 text-sm">
-          Belum ada target catalyst hari ini. Tambah di atas!
+          Belum ada target catalyst hari ini.
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {todayTargets.map(target => {
             const hero = heroMap.get(target.hero_id)
             if (!hero) return null
-
-            const catalyst = CATALYSTS.find(c => c.type === target.catalyst_type)
+            const catalyst = CLASS_CATALYSTS[hero.heroClass]
 
             return (
               <div
@@ -138,7 +138,7 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <div className={`w-2 h-2 rounded-full flex-shrink-0 ${ELEMENT_DOT[hero.element]}`} />
-                    <span className="text-sm text-xs">{CLASS_ICONS[hero.heroClass]}</span>
+                    <span className="text-xs">{CLASS_ICONS[hero.heroClass]}</span>
                     <span className={`text-sm font-semibold truncate ${target.collected ? 'text-zinc-400 line-through' : 'text-white'}`}>
                       {hero.name}
                     </span>
@@ -151,7 +151,7 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
 
                 <div className="flex items-center gap-2">
                   <span className="text-sm">{catalyst?.icon}</span>
-                  <span className="text-xs text-zinc-300 font-medium">{target.catalyst_type}</span>
+                  <span className="text-xs text-zinc-300 font-medium">{catalyst?.name}</span>
                   <span className="text-xs text-zinc-600">—</span>
                   <span className={`text-xs px-2 py-0.5 rounded-md ${
                     target.purpose === 'Awaken'
