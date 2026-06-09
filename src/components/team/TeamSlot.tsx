@@ -13,31 +13,39 @@ export default function TeamSlot({ slotIndex, heroId, heroes, onSelect, label }:
   const hero = heroes.find(h => h.id === heroId)
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="text-xs text-zinc-500 uppercase tracking-wide text-center">{label}</div>
-      <div className={`relative rounded-xl border-2 border-dashed transition-all min-h-[100px] flex flex-col items-center justify-center gap-2 p-3
-        ${hero ? 'border-zinc-600 bg-zinc-800' : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'}`}
+    <div className="space-y-2">
+      <div className="text-[9px] text-gold-700 uppercase tracking-[0.2em] font-display text-center">
+        {label}
+      </div>
+      <div
+        className={`relative rounded-sm border-2 border-dashed transition-all min-h-[110px] flex flex-col items-center justify-center gap-2 p-3 ${
+          hero
+            ? 'border-gold-700/60 bg-gradient-to-b from-tome to-void'
+            : 'border-gold-700/20 bg-tome/30 hover:border-gold-700/40'
+        }`}
       >
         {hero ? (
           <>
-            <div className={`w-3 h-3 rounded-full ${ELEMENT_DOT[hero.element]}`} />
+            <div className={`w-2.5 h-2.5 rounded-full gem ${ELEMENT_DOT[hero.element]}`} />
             <div className="text-lg">{CLASS_ICONS[hero.heroClass]}</div>
-            <div className="text-xs text-white font-semibold text-center leading-tight">{hero.name}</div>
+            <div className="text-[10px] text-gold-100 font-display tracking-wide text-center leading-tight">{hero.name}</div>
             <button
               onClick={() => onSelect(null)}
-              className="absolute top-1.5 right-1.5 text-zinc-500 hover:text-red-400 text-xs"
+              className="absolute top-1.5 right-1.5 text-gold-700 hover:text-crimson-500 text-xs transition-colors"
             >✕</button>
           </>
         ) : (
-          <div className="text-zinc-700 text-xs text-center">Slot {slotIndex + 1}<br/>kosong</div>
+          <div className="text-gold-700/40 text-[9px] text-center font-display tracking-widest">
+            Slot {slotIndex + 1}<br/>Vacant
+          </div>
         )}
       </div>
       <select
         value={heroId || ''}
         onChange={e => onSelect(e.target.value || null)}
-        className="bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5 text-xs text-zinc-300 outline-none w-full"
+        className="arcane-input text-xs py-1.5 w-full"
       >
-        <option value="">-- Pilih hero --</option>
+        <option value="">-- Summon Hero --</option>
         {heroes.map(h => (
           <option key={h.id} value={h.id}>{h.name}</option>
         ))}

@@ -20,34 +20,48 @@ export default function HeroCard({ hero, entry, onToggleOwned, onToggleBuilt, on
 
   return (
     <div
-      className={`rounded-xl border transition-all ${
+      className={`relic-card group relative overflow-hidden ${
         owned
           ? built
-            ? 'bg-zinc-800 border-zinc-600'
-            : 'bg-zinc-900 border-zinc-700'
-          : 'bg-zinc-950 border-zinc-800 opacity-40 hover:opacity-60'
+            ? 'border-gold-500/60'
+            : 'border-gold-700/50'
+          : 'opacity-50 hover:opacity-80'
       }`}
     >
+      {/* Subtle gem tint glow when owned */}
+      {owned && (
+        <div
+          className="absolute inset-0 opacity-[0.04] pointer-events-none transition-opacity group-hover:opacity-[0.08]"
+          style={{ background: `radial-gradient(circle at top right, currentColor, transparent 60%)` }}
+        />
+      )}
+
       {/* MAIN ROW */}
-      <div className="flex items-center gap-3 p-3">
-        {/* Element dot */}
-        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${ELEMENT_DOT[hero.element]}`} />
+      <div className="flex items-center gap-3 p-3.5 relative">
+        {/* Element gem */}
+        <div className="relative flex-shrink-0">
+          <div
+            className={`w-2.5 h-2.5 rounded-full gem ${ELEMENT_DOT[hero.element]} ${owned ? 'animate-glow-pulse' : ''}`}
+          />
+        </div>
 
         {/* Name + meta */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-xs">{CLASS_ICONS[hero.heroClass]}</span>
-            <span className={`text-sm font-semibold truncate ${owned ? 'text-white' : 'text-zinc-500'}`}>
+            <span className="text-xs text-gold-700">{CLASS_ICONS[hero.heroClass]}</span>
+            <span className={`font-display tracking-wide text-sm truncate ${owned ? 'text-gold-100' : 'text-gold-700'}`}>
               {hero.name}
             </span>
             {hero.hasSpecialtyChange && (
-              <span className="text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded px-1">SC</span>
+              <span className="text-[9px] font-display tracking-widest bg-gradient-to-r from-celestial-400 to-celestial-600 text-void px-1.5 py-0.5 rounded-sm uppercase font-bold">
+                SC
+              </span>
             )}
           </div>
-          <div className="flex items-center gap-1 mt-0.5">
-            <span className="text-xs text-zinc-500 capitalize">{hero.heroClass.replace('_', ' ')}</span>
-            <span className="text-zinc-700">·</span>
-            <span className="text-xs text-zinc-500">{'★'.repeat(hero.stars)}</span>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="text-[10px] text-gold-700 capitalize font-body tracking-wider">{hero.heroClass.replace('_', ' ')}</span>
+            <span className="text-gold-700/50">·</span>
+            <span className="text-[10px] text-celestial-400 font-mono">{'★'.repeat(hero.stars)}</span>
           </div>
         </div>
 
@@ -56,21 +70,21 @@ export default function HeroCard({ hero, entry, onToggleOwned, onToggleBuilt, on
           {owned && (
             <button
               onClick={() => onToggleBuilt(hero.id)}
-              className={`text-xs px-2 py-1 rounded-md border transition-colors ${
+              className={`text-[10px] font-display tracking-widest uppercase px-2 py-1 rounded-sm border transition-all ${
                 built
-                  ? 'bg-green-500/20 border-green-500/40 text-green-400'
-                  : 'border-zinc-700 text-zinc-500 hover:border-zinc-500'
+                  ? 'bg-gold-500/20 border-gold-500/60 text-gold-100 shadow-[0_0_8px_rgba(201,164,73,0.3)]'
+                  : 'border-gold-700/50 text-gold-700 hover:border-gold-500/60 hover:text-gold-300'
               }`}
             >
-              {built ? '⚙️ Built' : 'Build'}
+              {built ? '⚒ Forged' : 'Forge'}
             </button>
           )}
           <button
             onClick={() => onToggleOwned(hero.id)}
-            className={`text-xs px-2 py-1 rounded-md border transition-colors ${
+            className={`text-[10px] font-display tracking-widest uppercase px-2 py-1 rounded-sm border transition-all ${
               owned
-                ? 'bg-blue-500/20 border-blue-500/40 text-blue-400'
-                : 'border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+                ? 'bg-ruby-600/20 border-ruby-400/60 text-ruby-400 shadow-[0_0_8px_rgba(201,54,79,0.3)]'
+                : 'border-gold-700/50 text-gold-700 hover:border-gold-500/60 hover:text-gold-300'
             }`}
           >
             {owned ? '✓ Owned' : 'Own'}
@@ -78,7 +92,7 @@ export default function HeroCard({ hero, entry, onToggleOwned, onToggleBuilt, on
           {owned && (
             <button
               onClick={() => setExpanded(e => !e)}
-              className="text-xs text-zinc-500 hover:text-zinc-300 px-1"
+              className="text-gold-700 hover:text-gold-300 px-1 text-xs"
             >
               {expanded ? '▲' : '▼'}
             </button>
@@ -88,31 +102,31 @@ export default function HeroCard({ hero, entry, onToggleOwned, onToggleBuilt, on
 
       {/* EXPANDED NOTES */}
       {expanded && owned && (
-        <div className="px-3 pb-3 border-t border-zinc-800 pt-3 space-y-2">
+        <div className="px-3.5 pb-3.5 border-t border-gold-700/30 pt-3 space-y-2.5 relative">
           <div>
-            <label className="text-xs text-zinc-500 uppercase tracking-wide">Gear Set</label>
+            <label className="text-[10px] text-gold-700 uppercase tracking-[0.2em] font-display">Artifact Set</label>
             <input
               value={gearSet}
               onChange={e => setGearSet(e.target.value)}
-              placeholder="e.g. Speed / Crit"
-              className="mt-1 w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder-zinc-600 outline-none focus:border-zinc-500"
+              placeholder="e.g. Speed / Critical"
+              className="arcane-input mt-1 w-full text-sm"
             />
           </div>
           <div>
-            <label className="text-xs text-zinc-500 uppercase tracking-wide">Notes</label>
+            <label className="text-[10px] text-gold-700 uppercase tracking-[0.2em] font-display">Inscription</label>
             <textarea
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              placeholder="Target stats, artifacts, tips..."
+              placeholder="Build notes, target stats..."
               rows={2}
-              className="mt-1 w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder-zinc-600 outline-none focus:border-zinc-500 resize-none"
+              className="arcane-input mt-1 w-full text-sm resize-none"
             />
           </div>
           <button
             onClick={() => { onSaveNotes(hero.id, notes, gearSet); setExpanded(false) }}
-            className="text-xs bg-zinc-700 hover:bg-zinc-600 text-white px-3 py-1.5 rounded-lg transition-colors"
+            className="gilded-btn text-xs py-1.5"
           >
-            Simpan
+            Inscribe
           </button>
         </div>
       )}

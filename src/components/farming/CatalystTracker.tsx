@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { HEROES, CLASS_ICONS, ELEMENT_DOT, CLASS_CATALYSTS } from '../../data/heroes'
+import { HEROES, CLASS_ICONS, ELEMENT_DOT, CATALYSTS } from '../../data/heroes'
 import type { Hero, CatalystTarget, CatalystType, CatalystPurpose } from '../../types'
 
 interface Props {
@@ -13,83 +13,87 @@ interface Props {
 
 export default function CatalystTracker({ ownedHeroes, todayTargets, loading, onAdd, onToggle, onDelete }: Props) {
   const [selectedHero, setSelectedHero] = useState('')
+  const [selectedCatalyst, setSelectedCatalyst] = useState<CatalystType>(CATALYSTS[0].type)
   const [selectedPurpose, setSelectedPurpose] = useState<CatalystPurpose>('Awaken')
 
   const collected = todayTargets.filter(t => t.collected).length
   const total = todayTargets.length
 
-  const selectedHeroData = HEROES.find(h => h.id === selectedHero)
-  const autoCatalyst = selectedHeroData
-    ? CLASS_CATALYSTS[selectedHeroData.heroClass]
-    : null
-
   function handleAdd() {
-    if (!selectedHero || !selectedHeroData) return
-    onAdd(selectedHero, selectedHeroData.heroClass as CatalystType, selectedPurpose)
+    if (!selectedHero) return
+    onAdd(selectedHero, selectedCatalyst, selectedPurpose)
     setSelectedHero('')
   }
 
   const heroMap = new Map(HEROES.map(h => [h.id, h]))
+  const catalystMap = new Map(CATALYSTS.map(c => [c.type, c]))
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-lg font-bold text-white">Catalyst Target</h2>
-        <p className="text-zinc-500 text-sm mt-1">
-          Pilih hero — catalyst otomatis sesuai class
+    <div className="space-y-5">
+      <div className="ornate-divider" />
+
+      {/* Section Header */}
+      <div className="text-center">
+        <h2 className="font-display text-2xl md:text-3xl tracking-[0.2em] uppercase text-gold-100">
+          Catalyst Chronicle
+        </h2>
+        <p className="text-gold-700 font-body italic text-xs mt-1">
+          The catalysts of Érzé — forge your hero's ascension.
         </p>
       </div>
 
+      {/* Progress bar */}
       {total > 0 && (
         <div className="flex items-center gap-3">
-          <div className="flex-1 bg-zinc-900 rounded-full h-2 overflow-hidden">
+          <div className="flex-1 bg-tome rounded-full h-1.5 overflow-hidden border border-gold-700/20">
             <div
-              className="bg-green-500 h-2 rounded-full transition-all"
+              className="bg-gradient-to-r from-gold-700 via-gold-500 to-gold-100 h-1.5 transition-all duration-500"
               style={{ width: `${(collected / total) * 100}%` }}
             />
           </div>
-          <span className="text-xs text-zinc-500 font-mono">{collected}/{total} collected</span>
+          <span className="text-xs text-gold-500 font-mono">{collected}/{total} ascended</span>
         </div>
       )}
 
       {/* Add form */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-3">
+      <div className="relic-card p-4 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-
           {/* Hero select */}
           <div>
-            <label className="text-xs text-zinc-500 uppercase tracking-wide">Hero</label>
+            <label className="text-[10px] text-gold-700 uppercase tracking-[0.2em] font-display">Ascended Hero</label>
             <select
               value={selectedHero}
               onChange={e => setSelectedHero(e.target.value)}
-              className="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-zinc-600"
+              className="arcane-input mt-1 w-full text-sm"
             >
-              <option value="">-- Pilih Hero --</option>
+              <option value="">-- Choose Hero --</option>
               {ownedHeroes.map(h => (
                 <option key={h.id} value={h.id}>{h.name}</option>
               ))}
             </select>
           </div>
 
-          {/* Catalyst — otomatis dari class */}
+          {/* Catalyst type */}
           <div>
-            <label className="text-xs text-zinc-500 uppercase tracking-wide">Catalyst</label>
-            <div className="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm min-h-[42px] flex items-center">
-              {autoCatalyst ? (
-                <span className="text-white">{autoCatalyst.icon} {autoCatalyst.name}</span>
-              ) : (
-                <span className="text-zinc-600">Pilih hero dulu</span>
-              )}
-            </div>
+            <label className="text-[10px] text-gold-700 uppercase tracking-[0.2em] font-display">Catalyst</label>
+            <select
+              value={selectedCatalyst}
+              onChange={e => setSelectedCatalyst(e.target.value as CatalystType)}
+              className="arcane-input mt-1 w-full text-sm"
+            >
+              {CATALYSTS.map(c => (
+                <option key={c.type} value={c.type}>{c.icon} {c.type}</option>
+              ))}
+            </select>
           </div>
 
           {/* Purpose */}
           <div>
-            <label className="text-xs text-zinc-500 uppercase tracking-wide">Purpose</label>
+            <label className="text-[10px] text-gold-700 uppercase tracking-[0.2em] font-display">Aspiration</label>
             <select
               value={selectedPurpose}
               onChange={e => setSelectedPurpose(e.target.value as CatalystPurpose)}
-              className="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-zinc-600"
+              className="arcane-input mt-1 w-full text-sm"
             >
               <option value="Awaken">Awaken</option>
               <option value="Skill Up">Skill Up</option>
@@ -97,13 +101,13 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-1">
           <button
             onClick={handleAdd}
             disabled={!selectedHero}
-            className="bg-white text-zinc-950 text-sm font-semibold px-5 py-2 rounded-xl hover:bg-zinc-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="gilded-btn text-xs py-2 px-5"
           >
-            + Tambah Target
+            ✦ Set Target
           </button>
         </div>
       </div>
@@ -112,51 +116,65 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {Array(3).fill(0).map((_, i) => (
-            <div key={i} className="h-20 rounded-xl bg-zinc-900 animate-pulse" />
+            <div key={i} className="h-20 rounded-lg bg-tome/50 border border-gold-700/20 animate-pulse" />
           ))}
         </div>
       ) : todayTargets.length === 0 ? (
-        <div className="text-center py-12 text-zinc-600 text-sm">
-          Belum ada target catalyst hari ini.
+        <div className="text-center py-10">
+          <div className="text-gold-700/50 font-display italic text-sm">
+            No catalysts targeted today...
+          </div>
+          <div className="text-gold-700/30 font-mono text-[10px] mt-1">
+            Choose a hero and their path to ascension
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 stagger-fade">
           {todayTargets.map(target => {
             const hero = heroMap.get(target.hero_id)
             if (!hero) return null
-            const catalyst = CLASS_CATALYSTS[hero.heroClass]
+
+            const catalyst = catalystMap.get(target.catalyst_type)
 
             return (
               <div
                 key={target.id}
-                className={`rounded-xl border p-3 space-y-2 transition-all ${
+                className={`relic-card p-3 space-y-2 transition-all ${
                   target.collected
-                    ? 'bg-zinc-800/50 border-green-500/30'
-                    : 'bg-zinc-900 border-zinc-800'
+                    ? 'border-verdant-400/40 shadow-[0_0_12px_rgba(95,161,95,0.15)]'
+                    : ''
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${ELEMENT_DOT[hero.element]}`} />
-                    <span className="text-xs">{CLASS_ICONS[hero.heroClass]}</span>
-                    <span className={`text-sm font-semibold truncate ${target.collected ? 'text-zinc-400 line-through' : 'text-white'}`}>
+                    <div
+                      className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                        target.collected
+                          ? 'bg-gold-700/50'
+                          : ELEMENT_DOT[hero.element].replace('text-', '')
+                      }`}
+                    />
+                    <span className="text-xs text-gold-700">{CLASS_ICONS[hero.heroClass]}</span>
+                    <span className={`font-display tracking-wide text-sm truncate ${
+                      target.collected ? 'text-gold-700 line-through' : 'text-gold-100'
+                    }`}>
                       {hero.name}
                     </span>
                   </div>
                   <button
                     onClick={() => onDelete(target.id)}
-                    className="text-zinc-700 hover:text-red-400 text-xs flex-shrink-0"
+                    className="text-gold-700/50 hover:text-crimson-500 text-xs transition-colors flex-shrink-0"
                   >✕</button>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-sm">{catalyst?.icon}</span>
-                  <span className="text-xs text-zinc-300 font-medium">{catalyst?.name}</span>
-                  <span className="text-xs text-zinc-600">—</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-md ${
+                  <span className="text-base">{catalyst?.icon}</span>
+                  <span className="text-[10px] text-gold-100/70 font-display tracking-wide">{target.catalyst_type}</span>
+                  <span className="text-gold-700/30">·</span>
+                  <span className={`text-[9px] font-display tracking-wider px-2 py-0.5 rounded-sm ${
                     target.purpose === 'Awaken'
-                      ? 'bg-yellow-500/20 text-yellow-400'
-                      : 'bg-blue-500/20 text-blue-400'
+                      ? 'bg-celestial-400/15 text-celestial-400 border border-celestial-400/30'
+                      : 'bg-arcane-400/15 text-arcane-400 border border-arcane-400/30'
                   }`}>
                     {target.purpose}
                   </span>
@@ -164,13 +182,13 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
 
                 <button
                   onClick={() => onToggle(target.id)}
-                  className={`w-full text-xs px-3 py-1.5 rounded-lg border font-medium transition-all ${
+                  className={`w-full text-[10px] font-display tracking-widest uppercase px-3 py-1.5 rounded-sm border transition-all ${
                     target.collected
-                      ? 'bg-green-500/20 border-green-500/40 text-green-400'
-                      : 'border-zinc-700 text-zinc-500 hover:border-zinc-500'
+                      ? 'bg-verdant-400/15 border-verdant-400/60 text-verdant-400'
+                      : 'border-gold-700/50 text-gold-700 hover:border-gold-500/60 hover:text-gold-300'
                   }`}
                 >
-                  {target.collected ? '✓ Collected' : 'Toggle Collected'}
+                  {target.collected ? '✓ Ascended' : 'Mark Ascended'}
                 </button>
               </div>
             )

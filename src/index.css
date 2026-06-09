@@ -4,13 +4,132 @@
 
 @layer base {
   body {
-    @apply bg-zinc-950 text-white;
-    font-family: 'DM Sans', sans-serif;
+    @apply bg-void text-gold-100 font-body;
+    background-image:
+      radial-gradient(ellipse at center, #1f1830 0%, #0a0612 70%),
+      repeating-linear-gradient(
+        45deg,
+        transparent 0,
+        transparent 80px,
+        rgba(201, 164, 73, 0.015) 80px,
+        rgba(201, 164, 73, 0.015) 81px
+      );
+    background-attachment: fixed;
+    min-height: 100vh;
   }
+
   * {
-    @apply border-zinc-800;
+    @apply border-gold-700/30;
   }
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { @apply bg-zinc-950; }
-  ::-webkit-scrollbar-thumb { @apply bg-zinc-700 rounded-full; }
+
+  h1, h2, h3, h4 {
+    @apply font-display text-gold-100 tracking-wide;
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { @apply bg-void; }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gold-700 rounded-full;
+    border: 1px solid rgba(201, 164, 73, 0.2);
+  }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-gold-500; }
+}
+
+@layer components {
+  /* Gilded card with layered borders */
+  .relic-card {
+    @apply relative bg-gradient-to-br from-tome to-void border border-gold-700/40 rounded-lg;
+    box-shadow:
+      inset 0 1px 0 rgba(245, 230, 168, 0.08),
+      0 4px 20px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease;
+  }
+  .relic-card:hover {
+    @apply border-gold-500/60;
+    box-shadow:
+      inset 0 1px 0 rgba(245, 230, 168, 0.15),
+      0 4px 32px rgba(201, 164, 73, 0.15);
+  }
+
+  /* Gilded button */
+  .gilded-btn {
+    @apply relative font-display tracking-wider text-void font-semibold rounded-md px-4 py-2;
+    background: linear-gradient(135deg, #8a6d2c 0%, #e8c876 50%, #8a6d2c 100%);
+    background-size: 200% 100%;
+    background-position: 0% 0%;
+    box-shadow:
+      inset 0 1px 0 rgba(245, 230, 168, 0.4),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+      0 2px 8px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease;
+  }
+  .gilded-btn:hover:not(:disabled) {
+    background-position: 100% 0;
+    box-shadow:
+      inset 0 1px 0 rgba(245, 230, 168, 0.6),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+      0 4px 16px rgba(201, 164, 73, 0.4);
+  }
+  .gilded-btn:disabled {
+    @apply opacity-40 cursor-not-allowed;
+  }
+
+  /* Ghost button (outlined gold) */
+  .ghost-btn {
+    @apply relative font-display tracking-wide text-gold-300 border border-gold-700/50 rounded-md px-3 py-1.5;
+    background: linear-gradient(180deg, transparent 0%, rgba(201, 164, 73, 0.04) 100%);
+    transition: all 0.2s ease;
+  }
+  .ghost-btn:hover {
+    @apply text-gold-100 border-gold-500/70;
+    background: linear-gradient(180deg, rgba(201, 164, 73, 0.08) 0%, rgba(201, 164, 73, 0.12) 100%);
+  }
+
+  /* Ornate section divider */
+  .ornate-divider {
+    @apply relative h-px w-full;
+    background: linear-gradient(90deg, transparent 0%, #8a6d2c 20%, #e8c876 50%, #8a6d2c 80%, transparent 100%);
+  }
+  .ornate-divider::before {
+    content: '◆';
+    @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-gold-500;
+    text-shadow: 0 0 8px rgba(201, 164, 73, 0.6);
+    background: #14101e;
+    padding: 0 12px;
+    font-size: 10px;
+  }
+
+  /* Arcane input */
+  .arcane-input {
+    @apply bg-void/80 border border-gold-700/40 rounded-md px-4 py-2.5 font-body text-gold-100;
+    transition: all 0.2s ease;
+  }
+  .arcane-input::placeholder {
+    @apply text-gold-700;
+  }
+  .arcane-input:focus {
+    @apply outline-none border-arcane-400/60;
+    box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.3), 0 0 12px rgba(139, 92, 246, 0.15);
+  }
+
+  /* Gem with glow */
+  .gem {
+    @apply rounded-full;
+    box-shadow: 0 0 8px currentColor, inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  /* Stagger fade-in for grids */
+  .stagger-fade > * {
+    animation: fade-in-up 0.5s ease-out both;
+  }
+  .stagger-fade > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-fade > *:nth-child(2) { animation-delay: 40ms; }
+  .stagger-fade > *:nth-child(3) { animation-delay: 80ms; }
+  .stagger-fade > *:nth-child(4) { animation-delay: 120ms; }
+  .stagger-fade > *:nth-child(5) { animation-delay: 160ms; }
+  .stagger-fade > *:nth-child(6) { animation-delay: 200ms; }
+  .stagger-fade > *:nth-child(7) { animation-delay: 240ms; }
+  .stagger-fade > *:nth-child(8) { animation-delay: 280ms; }
+  .stagger-fade > *:nth-child(9) { animation-delay: 320ms; }
+  .stagger-fade > *:nth-child(n+10) { animation-delay: 360ms; }
 }

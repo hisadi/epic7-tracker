@@ -3,19 +3,19 @@ import type { HeroClass } from '../types'
 
 
 export const ELEMENT_COLORS: Record<string, string> = {
-  fire:  'bg-red-500/20 text-red-400 border-red-500/30',
-  ice:   'bg-sky-500/20 text-sky-400 border-sky-500/30',
-  earth: 'bg-green-500/20 text-green-400 border-green-500/30',
-  light: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  dark:  'bg-purple-500/20 text-purple-400 border-purple-500/30',
+  fire:  'text-ruby-400 border-ruby-400/40 bg-ruby-600/15',
+  ice:   'text-sapphire-400 border-sapphire-400/40 bg-sapphire-600/15',
+  earth: 'text-verdant-400 border-verdant-400/40 bg-verdant-600/15',
+  light: 'text-celestial-400 border-celestial-400/40 bg-celestial-600/15',
+  dark:  'text-shadow-400 border-shadow-400/40 bg-shadow-600/15',
 }
 
 export const ELEMENT_DOT: Record<string, string> = {
-  fire:  'bg-red-500',
-  ice:   'bg-sky-400',
-  earth: 'bg-green-500',
-  light: 'bg-yellow-400',
-  dark:  'bg-purple-500',
+  fire:  'bg-ruby-400 text-ruby-400',
+  ice:   'bg-sapphire-400 text-sapphire-400',
+  earth: 'bg-verdant-400 text-verdant-400',
+  light: 'bg-celestial-400 text-celestial-400',
+  dark:  'bg-shadow-400 text-shadow-400',
 }
 
 export const CLASS_ICONS: Record<string, string> = {
@@ -183,3 +183,13 @@ export const CLASS_CATALYSTS: Record<HeroClass, { name: string; icon: string }> 
   thief:       { name: 'Thief Catalyst',        icon: '🗡️' },
   ranger:      { name: 'Ranger Catalyst',       icon: '🏹' },
 }
+
+export const CATALYSTS: { type: CatalystType; icon: string }[] = [
+  { type: 'Horn of Promise',       icon: '🐴' },
+  { type: 'Moonlight Stone',       icon: '🌙' },
+  { type: 'Ring of Glory',         icon: '💍' },
+  { type: 'Necklace of Intuition', icon: '📿' },
+  { type: 'Blade of Justice',      icon: '⚔️' },
+  { type: 'Mystic Medallion',      icon: '🔰' },
+  { type: 'Charm of Devotion',     icon: '💫' },
+]

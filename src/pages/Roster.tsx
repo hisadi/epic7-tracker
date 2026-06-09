@@ -29,16 +29,39 @@ export default function Roster() {
   const builtCount = HEROES.filter(h => getEntry(h.id)?.built).length
 
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 space-y-6">
+    <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 space-y-8">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Hero Roster</h1>
-          <p className="text-zinc-500 text-sm mt-1">
-            {ownedCount} owned · {builtCount} built · {HEROES.length} total
-          </p>
+      <div className="text-center space-y-3">
+        <div className="flex items-center justify-center gap-4">
+          <div className="h-px w-16 bg-gold-shine opacity-60" />
+          <span className="text-gold-500 text-xs tracking-[0.4em] font-display uppercase">Volume I</span>
+          <div className="h-px w-16 bg-gold-shine opacity-60" />
+        </div>
+        <h1 className="font-display text-4xl md:text-5xl text-gold-100 tracking-[0.15em] uppercase">
+          Heroes of Érzé
+        </h1>
+        <p className="text-gold-700 font-body italic text-sm">
+          “In the realm of Orbis, destiny calls those who dare to answer.”
+        </p>
+        <div className="flex items-center justify-center gap-6 pt-2 font-mono text-xs">
+          <div className="text-center">
+            <div className="text-gold-300 text-lg font-bold">{ownedCount}</div>
+            <div className="text-gold-700 uppercase tracking-widest text-[10px]">Owned</div>
+          </div>
+          <div className="w-px h-8 bg-gold-700/40" />
+          <div className="text-center">
+            <div className="text-gold-300 text-lg font-bold">{builtCount}</div>
+            <div className="text-gold-700 uppercase tracking-widest text-[10px]">Forged</div>
+          </div>
+          <div className="w-px h-8 bg-gold-700/40" />
+          <div className="text-center">
+            <div className="text-gold-300 text-lg font-bold">{HEROES.length}</div>
+            <div className="text-gold-700 uppercase tracking-widest text-[10px]">Chronicled</div>
+          </div>
         </div>
       </div>
+
+      <div className="ornate-divider" />
 
       {/* Filters */}
       <HeroFilter
@@ -49,17 +72,21 @@ export default function Roster() {
       />
 
       {/* Count */}
-      <div className="text-xs text-zinc-600 font-mono">{filtered.length} hero ditampilkan</div>
+      <div className="flex items-center justify-between">
+        <div className="text-xs text-gold-700 font-mono uppercase tracking-widest">
+          {filtered.length} {filtered.length === 1 ? 'soul' : 'souls'} summoned
+        </div>
+      </div>
 
       {/* Grid */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {Array(12).fill(0).map((_, i) => (
-            <div key={i} className="h-16 rounded-xl bg-zinc-900 animate-pulse" />
+            <div key={i} className="h-16 rounded-lg bg-tome/50 border border-gold-700/20 animate-pulse" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 stagger-fade">
           {filtered.map(hero => (
             <HeroCard
               key={hero.id}
@@ -71,8 +98,13 @@ export default function Roster() {
             />
           ))}
           {filtered.length === 0 && (
-            <div className="col-span-full text-center py-16 text-zinc-600">
-              Tidak ada hero yang cocok dengan filter ini.
+            <div className="col-span-full text-center py-20">
+              <div className="text-gold-700 font-display italic text-lg">
+                No echoes from the abyss...
+              </div>
+              <div className="text-gold-700/50 font-mono text-xs mt-2">
+                Adjust your incantation
+              </div>
             </div>
           )}
         </div>
