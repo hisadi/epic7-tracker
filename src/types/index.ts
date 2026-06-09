@@ -61,14 +61,7 @@ export interface FarmingLog {
   target_gear: string
 }
 
-export type CatalystType =
-  | 'Horn of Promise'
-  | 'Moonlight Stone'
-  | 'Ring of Glory'
-  | 'Necklace of Intuition'
-  | 'Blade of Justice'
-  | 'Mystic Medallion'
-  | 'Charm of Devotion'
+export type CatalystType = HeroClass  // warrior, mage, knight, dll
 
 export type CatalystPurpose = 'Awaken' | 'Skill Up'
 

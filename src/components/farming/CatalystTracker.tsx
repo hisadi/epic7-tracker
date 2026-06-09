@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { HEROES, CLASS_ICONS, ELEMENT_DOT, CATALYSTS } from '../../data/heroes'
-import type { Hero, CatalystTarget, CatalystType, CatalystPurpose } from '../../types'
+import { HEROES, CLASS_ICONS, ELEMENT_DOT, CLASS_CATALYSTS } from '../../data/heroes'
+import type { Hero, CatalystTarget, CatalystType, CatalystPurpose, HeroClass } from '../../types'
 
 interface Props {
   ownedHeroes: Hero[]
@@ -13,7 +13,7 @@ interface Props {
 
 export default function CatalystTracker({ ownedHeroes, todayTargets, loading, onAdd, onToggle, onDelete }: Props) {
   const [selectedHero, setSelectedHero] = useState('')
-  const [selectedCatalyst, setSelectedCatalyst] = useState<CatalystType>(CATALYSTS[0].type)
+  const [selectedCatalyst, setSelectedCatalyst] = useState<CatalystType>('warrior')
   const [selectedPurpose, setSelectedPurpose] = useState<CatalystPurpose>('Awaken')
 
   const collected = todayTargets.filter(t => t.collected).length
@@ -26,7 +26,6 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
   }
 
   const heroMap = new Map(HEROES.map(h => [h.id, h]))
-  const catalystMap = new Map(CATALYSTS.map(c => [c.type, c]))
 
   return (
     <div className="space-y-5">
@@ -73,7 +72,7 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
             </select>
           </div>
 
-          {/* Catalyst type */}
+          {/* Catalyst type (class based) */}
           <div>
             <label className="text-[10px] text-gold-700 uppercase tracking-[0.2em] font-display">Catalyst</label>
             <select
@@ -81,8 +80,10 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
               onChange={e => setSelectedCatalyst(e.target.value as CatalystType)}
               className="arcane-input mt-1 w-full text-sm"
             >
-              {CATALYSTS.map(c => (
-                <option key={c.type} value={c.type}>{c.icon} {c.type}</option>
+              {(Object.keys(CLASS_CATALYSTS) as HeroClass[]).map(cls => (
+                <option key={cls} value={cls}>
+                  {CLASS_CATALYSTS[cls].icon} {CLASS_CATALYSTS[cls].name}
+                </option>
               ))}
             </select>
           </div>
@@ -134,7 +135,7 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
             const hero = heroMap.get(target.hero_id)
             if (!hero) return null
 
-            const catalyst = catalystMap.get(target.catalyst_type)
+            const catalystInfo = CLASS_CATALYSTS[target.catalyst_type as HeroClass]
 
             return (
               <div
@@ -168,8 +169,8 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-base">{catalyst?.icon}</span>
-                  <span className="text-[10px] text-gold-100/70 font-display tracking-wide">{target.catalyst_type}</span>
+                  <span className="text-base">{catalystInfo?.icon}</span>
+                  <span className="text-[10px] text-gold-100/70 font-display tracking-wide">{catalystInfo?.name}</span>
                   <span className="text-gold-700/30">·</span>
                   <span className={`text-[9px] font-display tracking-wider px-2 py-0.5 rounded-sm ${
                     target.purpose === 'Awaken'
