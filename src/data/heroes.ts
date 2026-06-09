@@ -1,4 +1,6 @@
 import type { Hero, Hunt, CatalystType } from '../types'
+import type { HeroClass } from '../types'
+
 
 export const ELEMENT_COLORS: Record<string, string> = {
   fire:  'bg-red-500/20 text-red-400 border-red-500/30',
