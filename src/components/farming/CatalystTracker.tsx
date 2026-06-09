@@ -13,15 +13,18 @@ interface Props {
 
 export default function CatalystTracker({ ownedHeroes, todayTargets, loading, onAdd, onToggle, onDelete }: Props) {
   const [selectedHero, setSelectedHero] = useState('')
-  const [selectedCatalyst, setSelectedCatalyst] = useState<CatalystType>('warrior')
   const [selectedPurpose, setSelectedPurpose] = useState<CatalystPurpose>('Awaken')
+
+  const selectedHeroData = HEROES.find(h => h.id === selectedHero)
+  const derivedCatalyst: CatalystType | null = selectedHeroData ? selectedHeroData.heroClass : null
+  const derivedCatalystInfo = derivedCatalyst ? CLASS_CATALYSTS[derivedCatalyst] : null
 
   const collected = todayTargets.filter(t => t.collected).length
   const total = todayTargets.length
 
   function handleAdd() {
-    if (!selectedHero) return
-    onAdd(selectedHero, selectedCatalyst, selectedPurpose)
+    if (!selectedHero || !derivedCatalyst) return
+    onAdd(selectedHero, derivedCatalyst, selectedPurpose)
     setSelectedHero('')
   }
 
@@ -56,7 +59,7 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
 
       {/* Add form */}
       <div className="relic-card p-4 space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Hero select */}
           <div>
             <label className="text-[10px] text-gold-700 uppercase tracking-[0.2em] font-display">Ascended Hero</label>
@@ -66,25 +69,14 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
               className="arcane-input mt-1 w-full text-sm"
             >
               <option value="">-- Choose Hero --</option>
-              {ownedHeroes.map(h => (
-                <option key={h.id} value={h.id}>{h.name}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Catalyst type (class based) */}
-          <div>
-            <label className="text-[10px] text-gold-700 uppercase tracking-[0.2em] font-display">Catalyst</label>
-            <select
-              value={selectedCatalyst}
-              onChange={e => setSelectedCatalyst(e.target.value as CatalystType)}
-              className="arcane-input mt-1 w-full text-sm"
-            >
-              {(Object.keys(CLASS_CATALYSTS) as HeroClass[]).map(cls => (
-                <option key={cls} value={cls}>
-                  {CLASS_CATALYSTS[cls].icon} {CLASS_CATALYSTS[cls].name}
-                </option>
-              ))}
+              {ownedHeroes.map(h => {
+                const cat = CLASS_CATALYSTS[h.heroClass]
+                return (
+                  <option key={h.id} value={h.id}>
+                    {h.name} ({h.heroClass}) {cat ? `${cat.icon}` : ''}
+                  </option>
+                )
+              })}
             </select>
           </div>
 
@@ -102,10 +94,27 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
           </div>
         </div>
 
+        {/* Catalyst preview — auto-derived from hero class */}
+        {derivedCatalystInfo ? (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-sm bg-tome/40 border border-gold-700/20">
+            <span className="text-[10px] text-gold-700 uppercase tracking-[0.2em] font-display">Catalyst</span>
+            <span className="text-gold-700/30">→</span>
+            <span className="text-lg">{derivedCatalystInfo.icon}</span>
+            <span className="text-sm text-gold-100 font-display tracking-wide">{derivedCatalystInfo.name}</span>
+            <span className="text-[9px] text-gold-700/60 font-mono ml-auto">
+              derived from {selectedHeroData?.heroClass}
+            </span>
+          </div>
+        ) : (
+          <div className="text-[10px] text-gold-700/40 italic px-1 font-body">
+            Select a hero to reveal their required catalyst
+          </div>
+        )}
+
         <div className="flex justify-end pt-1">
           <button
             onClick={handleAdd}
-            disabled={!selectedHero}
+            disabled={!selectedHero || !derivedCatalyst}
             className="gilded-btn text-xs py-2 px-5"
           >
             ✦ Set Target
