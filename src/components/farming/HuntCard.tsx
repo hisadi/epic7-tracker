@@ -1,124 +1,189 @@
 import { useState } from 'react'
-import type { Hunt, FarmingLog } from '../../types'
+import type { Hunt, HuntName } from '../../types'
 
 interface Props {
   hunt: Hunt
-  todayLog?: FarmingLog
+  todayLog?: { runs_done: number; daily_done: boolean; target_gear: string }
   totalRuns: number
   onToggleDaily: () => void
   onAddRun: (delta: number) => void
   onSetTarget: (target: string) => void
 }
 
-const PRIORITY_STYLE: Record<string, { bg: string; badge?: string }> = {
-  high:   { bg: 'from-ruby-600/[0.08] to-void border-ruby-400/30' },
-  medium: { bg: 'from-gold-700/[0.06] to-void border-gold-700/40' },
-  low:    { bg: 'from-tome/60 to-void border-gold-700/20' },
+const PRIORITY_THEME = {
+  high:   { ring: 'ring-amber-500/40',  glow: 'shadow-[0_0_18px_-6px_rgba(245,158,11,0.45)]',  badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30',  label: 'Kritis' },
+  medium: { ring: 'ring-violet-500/30',  glow: 'shadow-[0_0_18px_-8px_rgba(167,139,250,0.40)]',  badge: 'bg-violet-500/15 text-violet-300 border-violet-500/30',  label: 'Penting' },
+  low:    { ring: 'ring-zinc-500/30',    glow: '',                                                  badge: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/30',     label: 'Opsional' },
 }
 
+const RUN_TARGETS = [3, 5, 10]
+
 export default function HuntCard({ hunt, todayLog, totalRuns, onToggleDaily, onAddRun, onSetTarget }: Props) {
-  const [editTarget, setEditTarget] = useState(false)
-  const [targetInput, setTargetInput] = useState(todayLog?.target_gear || '')
+  const [editingTarget, setEditingTarget] = useState(false)
+  const [targetDraft, setTargetDraft] = useState<string>(String(todayLog?.target_gear ?? ''))
 
-  const runsToday = todayLog?.runs_done || 0
-  const dailyDone = todayLog?.daily_done || false
-
-  const priority = PRIORITY_STYLE[hunt.priority]
+  const runs = todayLog?.runs_done ?? 0
+  const target = parseInt(todayLog?.target_gear ?? '0') || 0
+  const done = todayLog?.daily_done ?? false
+  const theme = PRIORITY_THEME[hunt.priority]
+  const isHigh = hunt.priority === 'high'
+  const progressPct = target > 0 ? Math.min(100, (runs / target) * 100) : 0
+  const reached = target > 0 && runs >= target
 
   return (
-    <div className={`relic-card bg-gradient-to-br ${priority.bg} p-4 space-y-3 relative overflow-hidden`}>
-      {/* Priority glow */}
-      {hunt.priority === 'high' && (
-        <div className="absolute top-0 right-0 w-20 h-20 bg-ruby-400/5 rounded-full blur-2xl pointer-events-none" />
-      )}
+    <div
+      className={`
+        group relative overflow-hidden rounded-xl
+        bg-gradient-to-br from-[#1a1626]/95 to-[#0d0a18]/95
+        border border-amber-900/30
+        ring-1 ${theme.ring}
+        ${isHigh ? theme.glow : ''}
+        backdrop-blur-sm
+        transition-all duration-300
+        ${done ? 'opacity-70' : 'hover:border-amber-500/50 hover:-translate-y-0.5'}
+      `}
+    >
+      {/* Decorative corner flourish */}
+      <div className="pointer-events-none absolute -top-6 -right-6 w-20 h-20 rounded-full bg-amber-500/5 blur-2xl" />
+      <div className="pointer-events-none absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-violet-500/5 blur-2xl" />
 
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-xl filter drop-shadow-[0_0_6px_rgba(232,200,118,0.4)]">{hunt.icon}</span>
-            <span className="font-display tracking-wider text-gold-100 text-sm uppercase">{hunt.name}</span>
-            {hunt.priority === 'high' && (
-              <span className="text-[9px] font-display tracking-[0.15em] uppercase bg-gradient-to-r from-ruby-600/40 to-ruby-600/20 text-ruby-400 border border-ruby-400/30 px-2 py-0.5 rounded-sm flex-shrink-0">
-                Priority
-              </span>
-            )}
+      {/* Top accent bar */}
+      <div className={`h-0.5 w-full ${isHigh ? 'bg-gradient-to-r from-amber-500/40 via-amber-400/70 to-amber-500/40' : 'bg-gradient-to-r from-transparent via-zinc-700/40 to-transparent'}`} />
+
+      <div className="relative p-4 space-y-3">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className={`
+              w-10 h-10 rounded-lg flex items-center justify-center text-2xl shrink-0
+              bg-[#0a0814] border border-amber-900/30
+              ${isHigh ? '' : 'grayscale-[30%]'}
+            `}>
+              {hunt.icon}
+            </div>
+            <div className="min-w-0">
+              <div className="font-cinzel font-semibold text-zinc-100 text-sm tracking-wide truncate">
+                {hunt.name}
+              </div>
+              <div className="text-[10px] font-mono uppercase tracking-wider text-amber-500/70">
+                {hunt.gearSets.join(' · ')}
+              </div>
+            </div>
           </div>
-          <p className="text-[10px] text-gold-700 mt-0.5 italic font-body">{hunt.description}</p>
-        </div>
-
-        {/* Daily done toggle */}
-        <button
-          onClick={onToggleDaily}
-          className={`flex-shrink-0 text-[10px] font-display tracking-widest uppercase px-3 py-1.5 rounded-sm border transition-all ${
-            dailyDone
-              ? 'bg-verdant-400/15 border-verdant-400/60 text-verdant-400 shadow-[0_0_8px_rgba(95,161,95,0.3)]'
-              : 'border-gold-700/50 text-gold-700 hover:border-gold-500/60 hover:text-gold-300'
-          }`}
-        >
-          {dailyDone ? '✓ Satisfied' : 'Satisfy'}
-        </button>
-      </div>
-
-      {/* Gear sets */}
-      <div className="flex flex-wrap gap-1.5">
-        {hunt.gearSets.map(g => (
-          <span key={g} className="text-[10px] bg-tome/80 border border-gold-700/40 text-gold-300 rounded-sm px-2 py-0.5 font-display tracking-wider">
-            {g}
+          <span className={`text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded border ${theme.badge} shrink-0`}>
+            {theme.label}
           </span>
-        ))}
-      </div>
-
-      {/* Run counter */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 bg-tome/80 border border-gold-700/40 rounded-sm px-3 py-2.5">
-          <button onClick={() => onAddRun(-1)} className="text-gold-700 hover:text-gold-300 transition-colors font-mono text-sm">−</button>
-          <div className="text-center min-w-[44px]">
-            <div className="text-gold-100 font-bold font-mono text-lg leading-none">{runsToday}</div>
-            <div className="text-gold-700 text-[9px] uppercase tracking-[0.1em]">today</div>
-          </div>
-          <button onClick={() => onAddRun(1)} className="text-gold-700 hover:text-gold-300 transition-colors font-mono text-sm">+</button>
         </div>
-        <div className="text-center px-2">
-          <div className="text-gold-300 font-mono text-sm font-bold">{totalRuns}</div>
-          <div className="text-gold-700 text-[9px] uppercase tracking-[0.1em]">total</div>
-        </div>
-      </div>
 
-      {/* Target gear */}
-      <div>
-        {editTarget ? (
-          <div className="flex gap-2">
-            <input
-              autoFocus
-              value={targetInput}
-              onChange={e => setTargetInput(e.target.value)}
-              placeholder="e.g. Speed boots +30% CR"
-              className="arcane-input flex-1 text-xs py-1.5"
-              onKeyDown={e => {
-                if (e.key === 'Enter') { onSetTarget(targetInput); setEditTarget(false) }
-                if (e.key === 'Escape') setEditTarget(false)
-              }}
-            />
-            <button
-              onClick={() => { onSetTarget(targetInput); setEditTarget(false) }}
-              className="ghost-btn text-xs py-1.5"
-            >
-              ✎
-            </button>
-          </div>
-        ) : (
+        {/* Description */}
+        <p className="text-[11px] text-zinc-500 leading-relaxed italic font-cormorant">
+          {hunt.description}
+        </p>
+
+        {/* Run counter */}
+        <div className="flex items-center gap-1.5">
           <button
-            onClick={() => { setTargetInput(todayLog?.target_gear || ''); setEditTarget(true) }}
-            className="text-[10px] text-gold-700 hover:text-gold-300 transition-colors font-display tracking-wider flex items-center gap-1.5"
+            onClick={() => onAddRun(-1)}
+            disabled={runs === 0}
+            className="w-7 h-7 rounded-md bg-[#0a0814] border border-amber-900/30 text-amber-400 hover:border-amber-500/50 hover:text-amber-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-bold"
           >
-            <span>✦</span>
-            {todayLog?.target_gear
-              ? <span className="text-gold-300">{todayLog.target_gear}</span>
-              : 'Set artifact target...'}
+            −
           </button>
+          <div className="flex-1 text-center">
+            <div className={`
+              font-cinzel font-bold text-xl tabular-nums leading-none
+              ${reached ? 'text-amber-300' : 'text-zinc-200'}
+            `}>
+              {runs}
+            </div>
+            <div className="text-[9px] font-mono uppercase tracking-widest text-zinc-600 mt-0.5">
+              {target > 0 ? `/ ${target} runs` : 'runs'}
+            </div>
+          </div>
+          <button
+            onClick={() => onAddRun(1)}
+            className="w-7 h-7 rounded-md bg-[#0a0814] border border-amber-900/30 text-amber-400 hover:border-amber-500/50 hover:text-amber-200 transition-colors font-bold"
+          >
+            +
+          </button>
+        </div>
+
+        {/* Progress bar */}
+        {target > 0 && (
+          <div className="space-y-1">
+            <div className="h-1 rounded-full bg-[#0a0814] overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${
+                  reached
+                    ? 'bg-gradient-to-r from-amber-500 to-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+                    : 'bg-gradient-to-r from-amber-700 to-amber-500'
+                }`}
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+          </div>
         )}
+
+        {/* Quick target buttons */}
+        <div className="flex items-center gap-1">
+          <span className="text-[9px] font-mono uppercase tracking-widest text-zinc-600 mr-1">Target:</span>
+          {RUN_TARGETS.map(t => (
+            <button
+              key={t}
+              onClick={() => onSetTarget(String(t))}
+              className={`
+                text-[10px] font-mono px-1.5 py-0.5 rounded
+                transition-colors
+                ${target === t
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                  : 'bg-[#0a0814] text-zinc-500 border border-amber-900/20 hover:border-amber-500/30 hover:text-zinc-300'
+                }
+              `}
+            >
+              {t}
+            </button>
+          ))}
+          {target > 0 && (
+            <button
+              onClick={() => onSetTarget('')}
+              className="text-[10px] font-mono px-1.5 py-0.5 rounded text-zinc-600 hover:text-zinc-400 ml-auto"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* Footer: daily done + all-time */}
+        <div className="flex items-center justify-between pt-2 border-t border-amber-900/20">
+          <label className="flex items-center gap-1.5 cursor-pointer group/check">
+            <input
+              type="checkbox"
+              checked={done}
+              onChange={onToggleDaily}
+              className="
+                w-3.5 h-3.5 rounded
+                bg-[#0a0814] border border-amber-900/40
+                checked:bg-amber-500 checked:border-amber-400
+                focus:ring-1 focus:ring-amber-500/40
+                cursor-pointer
+                accent-amber-500
+              "
+            />
+            <span className={`
+              text-[10px] font-mono uppercase tracking-widest
+              ${done ? 'text-amber-300' : 'text-zinc-500 group-hover/check:text-zinc-300'}
+            `}>
+              {done ? '✓ Selesai' : 'Done?'}
+            </span>
+          </label>
+          <div className="text-right">
+            <div className="text-[9px] font-mono uppercase tracking-widest text-zinc-600">All-time</div>
+            <div className="font-cinzel font-bold text-amber-500/80 text-sm tabular-nums">{totalRuns}</div>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
+
+export type { HuntName }

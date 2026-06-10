@@ -1,133 +1,158 @@
 import { useState } from 'react'
+import { ELEMENT_DOT, ELEMENT_COLORS, CLASS_ICONS } from '../../data/heroes'
 import type { Hero, RosterEntry } from '../../types'
-import { ELEMENT_DOT, CLASS_ICONS } from '../../data/heroes'
 
 interface Props {
   hero: Hero
   entry?: RosterEntry
-  onToggleOwned: (id: string) => void
-  onToggleBuilt: (id: string) => void
-  onSaveNotes: (id: string, notes: string, gear_set: string) => void
+  onToggleOwned: (heroId: string) => void
+  onToggleBuilt: (heroId: string) => void
+  onSaveNotes: (heroId: string, notes: string, gear_set: string) => void
 }
 
 export default function HeroCard({ hero, entry, onToggleOwned, onToggleBuilt, onSaveNotes }: Props) {
-  const [expanded, setExpanded] = useState(false)
+  const [editing, setEditing] = useState(false)
   const [notes, setNotes] = useState(entry?.notes || '')
-  const [gearSet, setGearSet] = useState(entry?.gear_set || '')
+  const [gear, setGear] = useState(entry?.gear_set || '')
 
   const owned = entry?.owned || false
   const built = entry?.built || false
+  const stars = entry?.stars || 0
+
+  const elementClass = ELEMENT_COLORS[hero.element]
+  const elementDot = ELEMENT_DOT[hero.element]
+  const classIcon = CLASS_ICONS[hero.heroClass]
+
+  function save() {
+    onSaveNotes(hero.id, notes, gear)
+    setEditing(false)
+  }
 
   return (
     <div
-      className={`relic-card group relative overflow-hidden ${
-        owned
-          ? built
-            ? 'border-gold-500/60'
-            : 'border-gold-700/50'
-          : 'opacity-50 hover:opacity-80'
-      }`}
+      className={`relic-card p-4 transition-all duration-300 ${
+        !owned ? 'opacity-50' : ''
+      } ${built ? 'shadow-[0_0_20px_rgba(201,164,73,0.15)]' : ''}`}
     >
-      {/* Subtle gem tint glow when owned */}
-      {owned && (
-        <div
-          className="absolute inset-0 opacity-[0.04] pointer-events-none transition-opacity group-hover:opacity-[0.08]"
-          style={{ background: `radial-gradient(circle at top right, currentColor, transparent 60%)` }}
-        />
-      )}
-
-      {/* MAIN ROW */}
-      <div className="flex items-center gap-3 p-3.5 relative">
-        {/* Element gem */}
-        <div className="relative flex-shrink-0">
-          <div
-            className={`w-2.5 h-2.5 rounded-full gem ${ELEMENT_DOT[hero.element]} ${owned ? 'animate-glow-pulse' : ''}`}
-          />
+      {/* Header */}
+      <div className="flex items-start gap-3">
+        {/* Class icon as portrait placeholder */}
+        <div className="relative w-12 h-12 flex-shrink-0 rounded-sm border border-gold-700/40 bg-tome/80 flex items-center justify-center text-2xl">
+          <span>{classIcon}</span>
+          {built && (
+            <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-gold-500 shadow-[0_0_8px_rgba(201,164,73,0.8)]" />
+          )}
         </div>
 
         {/* Name + meta */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gold-700">{CLASS_ICONS[hero.heroClass]}</span>
-            <span className={`font-display tracking-wide text-sm truncate ${owned ? 'text-gold-100' : 'text-gold-700'}`}>
+          <div className="flex items-center gap-2">
+            <h3 className="font-display tracking-wide text-gold-100 text-sm truncate">
               {hero.name}
-            </span>
+            </h3>
             {hero.hasSpecialtyChange && (
-              <span className="text-[9px] font-display tracking-widest bg-gradient-to-r from-celestial-400 to-celestial-600 text-void px-1.5 py-0.5 rounded-sm uppercase font-bold">
+              <span className="text-[9px] font-display tracking-wider uppercase text-arcane-400 border border-arcane-500/40 rounded-sm px-1">
                 SC
               </span>
             )}
           </div>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="text-[10px] text-gold-700 capitalize font-body tracking-wider">{hero.heroClass.replace('_', ' ')}</span>
-            <span className="text-gold-700/50">·</span>
-            <span className="text-[10px] text-celestial-400 font-mono">{'★'.repeat(hero.stars)}</span>
+          <div className="flex items-center gap-1.5 mt-1">
+            <span className={`gem ${elementClass}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${elementDot}`} />
+              {hero.element}
+            </span>
+            <span className="text-gold-700/60 text-[10px] font-mono">
+              {'★'.repeat(hero.stars)}
+            </span>
           </div>
-        </div>
-
-        {/* Buttons */}
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          {owned && (
-            <button
-              onClick={() => onToggleBuilt(hero.id)}
-              className={`text-[10px] font-display tracking-widest uppercase px-2 py-1 rounded-sm border transition-all ${
-                built
-                  ? 'bg-gold-500/20 border-gold-500/60 text-gold-100 shadow-[0_0_8px_rgba(201,164,73,0.3)]'
-                  : 'border-gold-700/50 text-gold-700 hover:border-gold-500/60 hover:text-gold-300'
-              }`}
-            >
-              {built ? '⚒ Forged' : 'Forge'}
-            </button>
-          )}
-          <button
-            onClick={() => onToggleOwned(hero.id)}
-            className={`text-[10px] font-display tracking-widest uppercase px-2 py-1 rounded-sm border transition-all ${
-              owned
-                ? 'bg-ruby-600/20 border-ruby-400/60 text-ruby-400 shadow-[0_0_8px_rgba(201,54,79,0.3)]'
-                : 'border-gold-700/50 text-gold-700 hover:border-gold-500/60 hover:text-gold-300'
-            }`}
-          >
-            {owned ? '✓ Owned' : 'Own'}
-          </button>
-          {owned && (
-            <button
-              onClick={() => setExpanded(e => !e)}
-              className="text-gold-700 hover:text-gold-300 px-1 text-xs"
-            >
-              {expanded ? '▲' : '▼'}
-            </button>
-          )}
         </div>
       </div>
 
-      {/* EXPANDED NOTES */}
-      {expanded && owned && (
-        <div className="px-3.5 pb-3.5 border-t border-gold-700/30 pt-3 space-y-2.5 relative">
-          <div>
-            <label className="text-[10px] text-gold-700 uppercase tracking-[0.2em] font-display">Artifact Set</label>
-            <input
-              value={gearSet}
-              onChange={e => setGearSet(e.target.value)}
-              placeholder="e.g. Speed / Critical"
-              className="arcane-input mt-1 w-full text-sm"
-            />
+      {/* Stars counter */}
+      {owned && (
+        <div className="mt-3 flex items-center gap-2">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-gold-700">
+            Stars
+          </span>
+          <div className="flex gap-0.5">
+            {[1, 2, 3, 4, 5, 6].map(n => (
+              <button
+                key={n}
+                onClick={() => onSaveNotes(hero.id, notes, gear)}
+                className={`text-xs transition-all ${
+                  n <= stars ? 'text-gold-500 text-glow-sm' : 'text-gold-700/30'
+                }`}
+              >
+                ★
+              </button>
+            ))}
           </div>
-          <div>
-            <label className="text-[10px] text-gold-700 uppercase tracking-[0.2em] font-display">Inscription</label>
-            <textarea
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="Build notes, target stats..."
-              rows={2}
-              className="arcane-input mt-1 w-full text-sm resize-none"
-            />
-          </div>
+        </div>
+      )}
+
+      <div className="ornate-divider mt-3 mb-3" />
+
+      {/* Actions */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => onToggleOwned(hero.id)}
+          className={`ghost-btn flex-1 text-[10px] py-1.5 ${
+            owned ? 'border-gold-500/60 text-gold-300 bg-gold-700/10' : ''
+          }`}
+        >
+          {owned ? '✓ Owned' : 'Owned'}
+        </button>
+        <button
+          onClick={() => onToggleBuilt(hero.id)}
+          disabled={!owned}
+          className={`ghost-btn flex-1 text-[10px] py-1.5 ${
+            built ? 'border-gold-500/60 text-gold-300 bg-gold-700/10' : ''
+          }`}
+        >
+          {built ? '✓ Built' : 'Built'}
+        </button>
+        {owned && (
           <button
-            onClick={() => { onSaveNotes(hero.id, notes, gearSet); setExpanded(false) }}
-            className="gilded-btn text-xs py-1.5"
+            onClick={() => editing ? save() : setEditing(true)}
+            className={`ghost-btn text-[10px] py-1.5 px-2 ${editing ? 'border-gold-500/60 text-gold-300' : ''}`}
           >
-            Inscribe
+            {editing ? '✓' : '✎'}
           </button>
+        )}
+      </div>
+
+      {/* Edit panel */}
+      {editing && owned && (
+        <div className="mt-3 space-y-2">
+          <input
+            value={gear}
+            onChange={e => setGear(e.target.value)}
+            placeholder="Gear set (e.g. Speed, Counter)"
+            className="arcane-input w-full text-xs py-1.5"
+          />
+          <textarea
+            value={notes}
+            onChange={e => setNotes(e.target.value)}
+            placeholder="Notes..."
+            rows={2}
+            className="arcane-input w-full text-xs py-1.5 resize-none"
+          />
+        </div>
+      )}
+
+      {/* Read-only display */}
+      {!editing && owned && (entry?.notes || entry?.gear_set) && (
+        <div className="mt-3 space-y-1">
+          {entry.gear_set && (
+            <div className="text-[10px] font-mono text-gold-500/80">
+              ⚔ {entry.gear_set}
+            </div>
+          )}
+          {entry.notes && (
+            <p className="text-[11px] text-gold-700/70 italic leading-snug">
+              {entry.notes}
+            </p>
+          )}
         </div>
       )}
     </div>

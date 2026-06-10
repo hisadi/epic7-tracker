@@ -8,7 +8,7 @@ import CatalystTracker from '../components/farming/CatalystTracker'
 export default function Farming() {
   const { loading, getTodayLog, toggleDaily, addRun, setTarget, totalRuns } = useFarming()
   const { roster } = useRoster()
-  const { getTodayTargets, addTarget, toggleCollected, deleteTarget } = useCatalyst()
+  const { getTodayTargets, getPreviousTargets, addTarget, toggleCollected, deleteTarget } = useCatalyst()
 
   const ownedHeroes = HEROES.filter(h => roster.find(r => r.hero_id === h.id && r.owned))
 
@@ -64,6 +64,7 @@ export default function Farming() {
       <CatalystTracker
         ownedHeroes={ownedHeroes}
         todayTargets={getTodayTargets()}
+        previousTargets={getPreviousTargets()}
         loading={false}
         onAdd={addTarget}
         onToggle={toggleCollected}

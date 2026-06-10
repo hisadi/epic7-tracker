@@ -19,6 +19,14 @@ export function useCatalyst() {
 
   const getTodayTargets = () => targets.filter(t => t.date === today())
 
+  const getPreviousTargets = (days = 7) => {
+    const todayStr = today()
+    return targets
+      .filter(t => t.date < todayStr)
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, days * 5)
+  }
+
   const getUncollectedTodayCount = () =>
     targets.filter(t => t.date === today() && !t.collected).length
 
@@ -50,5 +58,5 @@ export function useCatalyst() {
     setTargets(prev => prev.filter(t => t.id !== id))
   }
 
-  return { targets, loading, getTodayTargets, getUncollectedTodayCount, addTarget, toggleCollected, deleteTarget, refetch: fetch }
+  return { targets, loading, getTodayTargets, getPreviousTargets, getUncollectedTodayCount, addTarget, toggleCollected, deleteTarget, refetch: fetch }
 }

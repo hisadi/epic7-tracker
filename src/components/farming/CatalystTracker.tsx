@@ -5,15 +5,17 @@ import type { Hero, CatalystTarget, CatalystType, CatalystPurpose, HeroClass } f
 interface Props {
   ownedHeroes: Hero[]
   todayTargets: CatalystTarget[]
+  previousTargets: CatalystTarget[]
   loading: boolean
   onAdd: (heroId: string, catalystType: CatalystType, purpose: CatalystPurpose) => void
   onToggle: (id: string) => void
   onDelete: (id: string) => void
 }
 
-export default function CatalystTracker({ ownedHeroes, todayTargets, loading, onAdd, onToggle, onDelete }: Props) {
+export default function CatalystTracker({ ownedHeroes, todayTargets, previousTargets, loading, onAdd, onToggle, onDelete }: Props) {
   const [selectedHero, setSelectedHero] = useState('')
   const [selectedPurpose, setSelectedPurpose] = useState<CatalystPurpose>('Awaken')
+  const [showHistory, setShowHistory] = useState(false)
 
   const selectedHeroData = HEROES.find(h => h.id === selectedHero)
   const derivedCatalyst: CatalystType | null = selectedHeroData ? selectedHeroData.heroClass : null
@@ -203,6 +205,57 @@ export default function CatalystTracker({ ownedHeroes, todayTargets, loading, on
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* History section */}
+      {previousTargets.length > 0 && (
+        <div className="mt-6 border-t border-zinc-800 pt-4">
+          <button
+            type="button"
+            onClick={() => setShowHistory(s => !s)}
+            className="w-full flex items-center justify-between text-left group"
+          >
+            <div>
+              <h3 className="text-sm font-semibold text-zinc-400 group-hover:text-zinc-200 transition-colors">
+                History catalyst
+              </h3>
+              <p className="text-xs text-zinc-600 mt-0.5">
+                {previousTargets.length} catalyst selesai di hari sebelumnya
+              </p>
+            </div>
+            <span className={`text-zinc-500 text-sm transition-transform ${showHistory ? 'rotate-180' : ''}`}>
+              ▾
+            </span>
+          </button>
+
+          {showHistory && (
+            <div className="mt-3 space-y-2">
+              {previousTargets.map(target => {
+                const hero = HEROES.find(h => h.id === target.hero_id)
+                if (!hero) return null
+                const info = CLASS_CATALYSTS[hero.heroClass]
+                return (
+                  <div
+                    key={target.id}
+                    className="bg-zinc-900/40 border border-zinc-800/60 rounded-lg p-2.5 flex items-center gap-3 opacity-70"
+                  >
+                    <div className={`w-1.5 h-1.5 rounded-full ${ELEMENT_DOT[hero.element]} flex-shrink-0`} />
+                    <div className="text-base flex-shrink-0">{CLASS_ICONS[hero.heroClass]}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-zinc-400 truncate">{hero.name}</div>
+                      <div className="text-xs text-zinc-600">
+                        {info.icon} {info.name} · {target.purpose}
+                      </div>
+                    </div>
+                    <div className="text-xs text-zinc-500 font-mono flex-shrink-0">
+                      {new Date(target.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>
