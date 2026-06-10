@@ -74,3 +74,31 @@ export interface CatalystTarget {
   date: string
   created_at: string
 }
+
+export type FarmActivity =
+  | 'Wyvern Hunt'
+  | 'Golem Hunt'
+  | 'Banshee Hunt'
+  | 'Azimanak Hunt'
+  | 'Caides Hunt'
+  | 'Spirit Altar'
+  | 'Abyss'
+  | 'Catalyst Warrior'
+  | 'Catalyst Mage'
+  | 'Catalyst Knight'
+  | 'Catalyst Soul Weaver'
+  | 'Catalyst Thief'
+  | 'Catalyst Ranger'
+  | 'Gold Farming'
+  | 'EXP Farming'
+  | 'Rest'
+
+export interface FarmPlan {
+  id: string
+  date: string        // 'YYYY-MM-DD'
+  activity: FarmActivity
+  notes: string
+  done: boolean
+  week_number: number // bisa pakai getWeek() helper
+  created_at: string
+}

@@ -4,6 +4,7 @@ import { useCatalyst } from '../hooks/useCatalyst'
 import { useRoster } from '../hooks/useRoster'
 import HuntCard from '../components/farming/HuntCard'
 import CatalystTracker from '../components/farming/CatalystTracker'
+import FarmCalendar from '../components/farming/FarmCalendar'
 
 export default function Farming() {
   const { loading, getTodayLog, toggleDaily, addRun, setTarget, totalRuns } = useFarming()
@@ -60,16 +61,11 @@ export default function Farming() {
         </div>
       )}
 
-      {/* Catalyst Tracker */}
-      <CatalystTracker
-        ownedHeroes={ownedHeroes}
-        todayTargets={getTodayTargets()}
-        previousTargets={getPreviousTargets()}
-        loading={false}
-        onAdd={addTarget}
-        onToggle={toggleCollected}
-        onDelete={deleteTarget}
-      />
+      {/* Farming Calendar */}
+      <div>
+        <h2 className="text-xl font-bold text-white mb-4">📅 Farming Calendar</h2>
+        <FarmCalendar />
+      </div>
 
       {/* Summary */}
       <div className="relic-card p-5">
