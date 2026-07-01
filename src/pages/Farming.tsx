@@ -67,6 +67,19 @@ export default function Farming() {
         <FarmCalendar />
       </div>
 
+      {/* Catalyst Tracker */}
+      <div className="relic-card p-6 space-y-5">
+        <CatalystTracker
+          ownedHeroes={ownedHeroes}
+          todayTargets={getTodayTargets()}
+          previousTargets={getPreviousTargets()}
+          loading={false}
+          onAdd={(heroId, catalystType, purpose) => addTarget(heroId, catalystType, purpose)}
+          onToggle={(id) => toggleCollected(id)}
+          onDelete={(id) => deleteTarget(id)}
+        />
+      </div>
+
       {/* Summary */}
       <div className="relic-card p-5">
         <div className="font-display tracking-widest text-gold-100 text-xs uppercase mb-4">
